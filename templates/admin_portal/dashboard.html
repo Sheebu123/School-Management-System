@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-4">
+  <div>
+    <h3 class="fw-bold mb-0 text-dark">Institutional Overview</h3>
+    <p class="text-muted small mb-0">Academic Year: <span class="badge bg-primary">{{ current_year.name|default:"Not Configured" }}</span></p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'admin-classes' %}" class="btn btn-outline-primary btn-sm">
+      <i class="bi bi-diagram-3 me-1"></i> Academic Classes
+    </a>
+    <a href="{% url 'admin-finance' %}" class="btn btn-outline-success btn-sm">
+      <i class="bi bi-cash-stack me-1"></i> Fee Ledger
+    </a>
+    <a href="{% url 'swagger-ui' %}" target="_blank" class="btn btn-outline-dark btn-sm">
+      <i class="bi bi-code-slash me-1"></i> Interactive API Docs
+    </a>
+  </div>
+</div>
+
+<!-- Primary KPI Metrics -->
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-xl-3">
+    <div class="card h-100 card-hover">
+      <div class="card-body d-flex align-items-center gap-3">
+        <div class="stat-icon bg-primary-subtle text-primary">
+          <i class="bi bi-people-fill"></i>
+        </div>
+        <div>
+          <span class="text-muted small fw-semibold text-uppercase">Active Students</span>
+          <h3 class="fw-bold mb-0">{{ total_students }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="card h-100 card-hover">
+      <div class="card-body d-flex align-items-center gap-3">
+        <div class="stat-icon bg-success-subtle text-success">
+          <i class="bi bi-person-badge-fill"></i>
+        </div>
+        <div>
+          <span class="text-muted small fw-semibold text-uppercase">Faculty Teachers</span>
+          <h3 class="fw-bold mb-0">{{ total_teachers }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="card h-100 card-hover">
+      <div class="card-body d-flex align-items-center gap-3">
+        <div class="stat-icon bg-info-subtle text-info">
+          <i class="bi bi-door-open-fill"></i>
+        </div>
+        <div>
+          <span class="text-muted small fw-semibold text-uppercase">Class Sections</span>
+          <h3 class="fw-bold mb-0">{{ total_sections }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="card h-100 card-hover">
+      <div class="card-body d-flex align-items-center gap-3">
+        <div class="stat-icon bg-warning-subtle text-warning">
+          <i class="bi bi-pie-chart-fill"></i>
+        </div>
+        <div>
+          <span class="text-muted small fw-semibold text-uppercase">Fee Collection</span>
+          <h3 class="fw-bold mb-0">{{ finance_summary.recovery_rate }}%</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Secondary Dashboards: Attendance Today & Fee Reconciliation -->
+<div class="row g-3 mb-4">
+  <!-- Today's Attendance Snapshot -->
+  <div class="col-lg-6">
+    <div class="card h-100 shadow-sm">
+      <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+        <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-calendar-check me-2 text-primary"></i> Daily Attendance Pulse</h6>
+        <span class="badge bg-light text-secondary border">Today</span>
+      </div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="text-muted small">Sections Conducted Today:</span>
+          <span class="fw-bold text-dark">{{ today_sessions_count }} / {{ total_sections }}</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="text-muted small">Average Present Rate:</span>
+          <span class="fw-bold text-success">{{ today_attendance_pct }}%</span>
+        </div>
+        <div class="progress" style="height: 10px;">
+          <div class="progress-bar bg-success" role="progressbar" style="width: {{ today_attendance_pct }}%;" aria-valuenow="{{ today_attendance_pct }}" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <p class="text-muted small mt-3 mb-0">
+          <i class="bi bi-shield-check text-success me-1"></i> Enforces zero-duplicate roll calls per section and session type.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Financial Reconciliation Breakdown -->
+  <div class="col-lg-6">
+    <div class="card h-100 shadow-sm">
+      <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+        <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-cash-coin me-2 text-success"></i> Financial Reconciliation Ledger</h6>
+        <span class="badge bg-success-subtle text-success">Double-Entry Safe</span>
+      </div>
+      <div class="card-body">
+        <div class="row text-center g-2 mb-3">
+          <div class="col-4">
+            <div class="p-2 bg-light rounded">
+              <span class="text-muted small d-block">Invoiced</span>
+              <strong class="text-dark">${{ finance_summary.total_invoiced }}</strong>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="p-2 bg-success-subtle rounded">
+              <span class="text-success small d-block">Collected</span>
+              <strong class="text-success">${{ finance_summary.total_collected }}</strong>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="p-2 bg-danger-subtle rounded">
+              <span class="text-danger small d-block">Outstanding</span>
+              <strong class="text-danger">${{ finance_summary.total_outstanding }}</strong>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between small text-muted">
+          <span>Invoices: Total <strong>{{ finance_summary.invoice_count }}</strong></span>
+          <span>Paid: <strong class="text-success">{{ finance_summary.paid_count }}</strong> | Partial: <strong class="text-warning">{{ finance_summary.partially_paid_count }}</strong> | Unpaid: <strong class="text-danger">{{ finance_summary.unpaid_count }}</strong></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Operational Audit Trail -->
+<div class="card shadow-sm">
+  <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+    <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-journal-text me-2 text-info"></i> Recent System Audit Trail</h6>
+    <a href="{% url 'admin-audit-logs' %}" class="btn btn-sm btn-link text-decoration-none">View All Logs &rarr;</a>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Timestamp</th>
+          <th>Actor</th>
+          <th>Action</th>
+          <th>Entity</th>
+          <th>Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log in recent_audit_logs %}
+          <tr>
+            <td class="small text-muted text-nowrap">{{ log.timestamp|date:"M d, Y H:i:s" }}</td>
+            <td class="fw-semibold">
+              <span class="badge bg-light text-dark border">{{ log.actor.username|default:"SYSTEM" }}</span>
+            </td>
+            <td><span class="badge bg-primary-subtle text-primary">{{ log.action }}</span></td>
+            <td><span class="text-muted small">{{ log.entity_type }} ({{ log.entity_id|truncatechars:10 }})</span></td>
+            <td class="small text-truncate" style="max-width: 350px;">{{ log.description }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="5" class="text-center py-4 text-muted">No audit events recorded yet.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

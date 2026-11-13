@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Guardian Portal - My Wards{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-4">
+  <div>
+    <h3 class="fw-bold mb-0 text-dark">Parent / Guardian Portal</h3>
+    <p class="text-muted small mb-0">Welcome, <strong>{{ user.get_full_name }}</strong> &bull; Student Wards Overview</p>
+  </div>
+  <div>
+    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2">
+      <i class="bi bi-shield-check me-1"></i> IDOR Safe: Strict Ward Data Isolation
+    </span>
+  </div>
+</div>
+
+<div class="row g-4">
+  {% for item in wards_data %}
+    <div class="col-lg-6">
+      <div class="card h-100 shadow-sm border-0 card-hover">
+        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="fw-bold text-dark mb-0">{{ item.ward.full_name }}</h5>
+            <span class="text-muted small">Admission #: <code>{{ item.ward.admission_number }}</code></span>
+          </div>
+          <span class="badge bg-light text-dark border">{{ item.class_name }}</span>
+        </div>
+
+        <div class="card-body p-4">
+          <!-- KPI Metrics Row -->
+          <div class="row g-2 text-center mb-4">
+            <div class="col-4">
+              <div class="p-2 bg-light rounded">
+                <span class="text-muted small d-block">Attendance</span>
+                <strong class="{% if item.attendance_percentage >= 75 %}text-success{% else %}text-danger{% endif %} fs-5">
+                  {{ item.attendance_percentage }}%
+                </strong>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="p-2 bg-light rounded">
+                <span class="text-muted small d-block">Latest Result</span>
+                <strong class="text-dark fs-6">{{ item.latest_gpa }}</strong>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="p-2 {% if item.outstanding_fee > 0 %}bg-danger-subtle text-danger{% else %}bg-success-subtle text-success{% endif %} rounded">
+                <span class="small d-block">Fee Balance</span>
+                <strong class="fs-5">${{ item.outstanding_fee }}</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Action Links -->
+          <div class="d-flex flex-wrap gap-2">
+            <a href="{% url 'guardian-ward-attendance' item.ward.id %}" class="btn btn-outline-primary btn-sm flex-grow-1">
+              <i class="bi bi-calendar3 me-1"></i> Attendance Log
+            </a>
+            <a href="{% url 'guardian-ward-report-card' item.ward.id %}" class="btn btn-outline-success btn-sm flex-grow-1">
+              <i class="bi bi-award me-1"></i> Academic Report Card
+            </a>
+            {% if item.outstanding_fee > 0 %}
+              <a href="{% url 'guardian-fees' %}" class="btn btn-danger btn-sm flex-grow-1">
+                <i class="bi bi-credit-card me-1"></i> Pay Balance (${{ item.outstanding_fee }})
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <div class="col-12">
+      <div class="card p-5 text-center bg-light border-0">
+        <i class="bi bi-person-x fs-1 text-muted mb-2"></i>
+        <h5 class="fw-bold text-muted">No Linked Students Found</h5>
+        <p class="text-muted small mb-0">No active students are currently associated with your guardian profile. Please contact the school administration.</p>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

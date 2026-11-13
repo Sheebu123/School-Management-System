@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block title %}Fee Ledger & Finance Administration{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h3 class="fw-bold mb-0 text-dark">Fee Management & Ledger Reconciliation</h3>
+    <p class="text-muted small mb-0">Double-entry verified fee invoicing and financial recovery tracking</p>
+  </div>
+  <a href="{% url 'admin-dashboard' %}" class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-arrow-left me-1"></i> Dashboard
+  </a>
+</div>
+
+<!-- Ledger Summary Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-xl-3">
+    <div class="card h-100 p-3 bg-light border-0">
+      <span class="text-muted small fw-semibold text-uppercase">Total Invoiced</span>
+      <h3 class="fw-bold mb-0 text-dark">${{ summary.total_invoiced }}</h3>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card h-100 p-3 bg-success-subtle border-0">
+      <span class="text-success small fw-semibold text-uppercase">Total Collected</span>
+      <h3 class="fw-bold mb-0 text-success">${{ summary.total_collected }}</h3>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card h-100 p-3 bg-danger-subtle border-0">
+      <span class="text-danger small fw-semibold text-uppercase">Total Outstanding</span>
+      <h3 class="fw-bold mb-0 text-danger">${{ summary.total_outstanding }}</h3>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card h-100 p-3 bg-primary-subtle border-0">
+      <span class="text-primary small fw-semibold text-uppercase">Collection Efficiency</span>
+      <h3 class="fw-bold mb-0 text-primary">{{ summary.recovery_rate }}%</h3>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <!-- Fee Structures Table -->
+  <div class="col-lg-7">
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+        <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-tags me-2 text-primary"></i> Configured Fee Structures</h6>
+        <span class="badge bg-light text-dark border">{{ structures.count }} Rules</span>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Class Level</th>
+              <th>Category</th>
+              <th>Tariff Amount</th>
+              <th>Due Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for fs in structures %}
+              <tr>
+                <td class="fw-semibold text-dark">{{ fs.class_level.name }}</td>
+                <td><span class="badge bg-info-subtle text-info">{{ fs.category.name }}</span></td>
+                <td class="fw-bold text-dark">${{ fs.amount }}</td>
+                <td class="small text-muted">{{ fs.due_date|date:"M d, Y" }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="4" class="text-center py-4 text-muted">No fee structures configured yet.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Invoicing Trigger Box -->
+  <div class="col-lg-5">
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-header bg-white py-3 border-bottom">
+        <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-receipt me-2 text-success"></i> Bulk Invoice Generator</h6>
+      </div>
+      <div class="card-body">
+        <p class="text-muted small mb-3">
+          Generate standardized fee invoices for all active students enrolled in a target class section.
+        </p>
+        <form method="post" action="{% url 'admin-finance' %}">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label small fw-semibold text-muted">Select Target Class Section</label>
+            <select name="class_section_id" required class="form-select">
+              <option value="">-- Choose Section --</option>
+              {% for sec in sections %}
+                <option value="{{ sec.id }}">{{ sec.display_name }} ({{ sec.enrollments.count }} Students)</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-4">
+            <label class="form-label small fw-semibold text-muted">Invoice Due Date</label>
+            <input type="date" name="due_date" required class="form-control" value="2026-11-30">
+          </div>
+          <button type="submit" class="btn btn-success w-100 py-2 fw-semibold">
+            <i class="bi bi-file-earmark-plus me-1"></i> Generate Section Invoices
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Invoices Table -->
+<div class="card shadow-sm border-0">
+  <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+    <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-list-check me-2 text-primary"></i> Invoices Ledger (Recent 25)</h6>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Invoice #</th>
+          <th>Student</th>
+          <th>Total Invoiced</th>
+          <th>Total Paid</th>
+          <th>Outstanding</th>
+          <th>Status</th>
+          <th>Due Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for inv in recent_invoices %}
+          <tr>
+            <td><code>{{ inv.invoice_number }}</code></td>
+            <td class="fw-semibold text-dark">{{ inv.student.full_name }}</td>
+            <td class="fw-bold">${{ inv.total_amount }}</td>
+            <td class="text-success">${{ inv.paid_amount }}</td>
+            <td class="text-danger fw-semibold">${{ inv.outstanding_balance }}</td>
+            <td>
+              {% if inv.status == 'PAID' %}
+                <span class="badge bg-success">PAID</span>
+              {% elif inv.status == 'PARTIALLY_PAID' %}
+                <span class="badge bg-warning text-dark">PARTIAL</span>
+              {% else %}
+                <span class="badge bg-danger">UNPAID</span>
+              {% endif %}
+            </td>
+            <td class="small text-muted">{{ inv.due_date|date:"M d, Y" }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="7" class="text-center py-4 text-muted">No invoices generated yet.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

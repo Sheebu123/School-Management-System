@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance - {{ student.full_name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h3 class="fw-bold mb-0 text-dark">Student Attendance Register</h3>
+    <p class="text-muted small mb-0">{{ student.full_name }} &bull; Admission #: <code>{{ student.admission_number }}</code></p>
+  </div>
+  <a href="{% url 'guardian-dashboard' %}" class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-arrow-left me-1"></i> Back to Wards
+  </a>
+</div>
+
+<!-- Attendance Summary Counters -->
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-xl-2">
+    <div class="card h-100 p-3 bg-light border-0 text-center">
+      <span class="text-muted small fw-semibold text-uppercase">Total Sessions</span>
+      <h3 class="fw-bold mb-0 text-dark">{{ summary.total_sessions }}</h3>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-2">
+    <div class="card h-100 p-3 bg-success-subtle border-0 text-center">
+      <span class="text-success small fw-semibold text-uppercase">Present Days</span>
+      <h3 class="fw-bold mb-0 text-success">{{ summary.present_count }}</h3>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-2">
+    <div class="card h-100 p-3 bg-danger-subtle border-0 text-center">
+      <span class="text-danger small fw-semibold text-uppercase">Absent Days</span>
+      <h3 class="fw-bold mb-0 text-danger">{{ summary.absent_count }}</h3>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-2">
+    <div class="card h-100 p-3 bg-warning-subtle border-0 text-center">
+      <span class="text-warning small fw-semibold text-uppercase">Late Days</span>
+      <h3 class="fw-bold mb-0 text-warning">{{ summary.late_count }}</h3>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-2">
+    <div class="card h-100 p-3 bg-primary-subtle border-0 text-center">
+      <span class="text-primary small fw-semibold text-uppercase">Excused</span>
+      <h3 class="fw-bold mb-0 text-primary">{{ summary.excused_count }}</h3>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-2">
+    <div class="card h-100 p-3 {% if summary.attendance_percentage >= 75 %}bg-success-subtle text-success{% else %}bg-danger-subtle text-danger{% endif %} border-0 text-center">
+      <span class="small fw-semibold text-uppercase">Overall Rate</span>
+      <h3 class="fw-bold mb-0">{{ summary.attendance_percentage }}%</h3>
+    </div>
+  </div>
+</div>
+
+<!-- Attendance Log History -->
+<div class="card shadow-sm border-0">
+  <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+    <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-clock-history me-2 text-primary"></i> Daily Roll Call Log (Recent 30 Sessions)</h6>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Class Section</th>
+          <th>Session Type</th>
+          <th>Attendance Status</th>
+          <th>Remarks</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for rec in records %}
+          <tr>
+            <td class="fw-bold text-dark">{{ rec.session.date|date:"F d, Y" }}</td>
+            <td>{{ rec.session.class_section.display_name }}</td>
+            <td><span class="badge bg-light text-dark border">{{ rec.session.get_session_type_display }}</span></td>
+            <td>
+              {% if rec.status == 'PRESENT' %}
+                <span class="badge bg-success px-3 py-1">Present</span>
+              {% elif rec.status == 'ABSENT' %}
+                <span class="badge bg-danger px-3 py-1">Absent</span>
+              {% elif rec.status == 'LATE' %}
+                <span class="badge bg-warning text-dark px-3 py-1">Late</span>
+              {% else %}
+                <span class="badge bg-primary px-3 py-1">Excused</span>
+              {% endif %}
+            </td>
+            <td class="small text-muted">{{ rec.remarks|default:"-" }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="5" class="text-center py-4 text-muted">No attendance sessions recorded yet for this student.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

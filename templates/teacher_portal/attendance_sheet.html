@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance - {{ section.display_name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-4">
+  <div>
+    <h3 class="fw-bold mb-0 text-dark">Daily Attendance Register</h3>
+    <p class="text-muted small mb-0">{{ section.display_name }} &bull; Total Students: <strong>{{ roster|length }}</strong></p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'teacher-attendance-history' section.id %}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-clock-history me-1"></i> Register History
+    </a>
+    <a href="{% url 'teacher-dashboard' %}" class="btn btn-outline-primary btn-sm">
+      <i class="bi bi-arrow-left me-1"></i> Back to Workspace
+    </a>
+  </div>
+</div>
+
+<!-- Date & Session Filter -->
+<div class="card shadow-sm border-0 mb-4 p-3 bg-white">
+  <form method="get" class="row g-3 align-items-end">
+    <div class="col-sm-5 col-md-4">
+      <label class="form-label small fw-semibold text-muted">Attendance Date</label>
+      <input type="date" name="date" class="form-control" value="{{ selected_date|date:'Y-m-d' }}" onchange="this.form.submit()">
+    </div>
+    <div class="col-sm-4 col-md-3">
+      <label class="form-label small fw-semibold text-muted">Session Type</label>
+      <select name="session_type" class="form-select" onchange="this.form.submit()">
+        <option value="FULL_DAY" {% if session_type == 'FULL_DAY' %}selected{% endif %}>Full Day</option>
+        <option value="MORNING" {% if session_type == 'MORNING' %}selected{% endif %}>Morning</option>
+        <option value="AFTERNOON" {% if session_type == 'AFTERNOON' %}selected{% endif %}>Afternoon</option>
+      </select>
+    </div>
+    <div class="col-sm-3 col-md-5 text-sm-end">
+      <span class="badge bg-light text-muted border p-2 small">
+        <i class="bi bi-calendar3 me-1"></i> {{ selected_date|date:"l, F d, Y" }}
+      </span>
+    </div>
+  </form>
+</div>
+
+<!-- Duplicate Session Guard Banner -->
+{% if existing_session %}
+  <div class="alert alert-warning border-warning-subtle shadow-sm mb-4 d-flex align-items-center justify-content-between" role="alert">
+    <div>
+      <i class="bi bi-exclamation-triangle-fill fs-5 text-warning me-2"></i>
+      <strong>Attendance Already Recorded:</strong> A register entry for {{ selected_date|date:"M d, Y" }} exists (Recorded by: {{ existing_session.recorded_by.user.get_full_name }} at {{ existing_session.recorded_at|date:"H:i" }}).
+      <span class="d-block small text-muted">Submitting this form will safely update the existing attendance records without duplicating database entries (Acceptance Criteria 2).</span>
+    </div>
+    <span class="badge bg-warning text-dark px-3 py-2">Update Mode</span>
+  </div>
+{% endif %}
+
+<!-- Quick Toolbar -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div class="d-flex gap-2">
+    <button type="button" id="btn-mark-all-present" class="btn btn-outline-success btn-sm">
+      <i class="bi bi-check-all me-1"></i> Mark All Present
+    </button>
+    <button type="button" id="btn-mark-all-absent" class="btn btn-outline-danger btn-sm">
+      <i class="bi bi-x-circle me-1"></i> Mark All Absent
+    </button>
+  </div>
+  <div class="small text-muted">
+    Total in Roster: <strong>{{ roster|length }}</strong>
+  </div>
+</div>
+
+<!-- Attendance Form -->
+<form method="post" action="">
+  {% csrf_token %}
+  <input type="hidden" name="date" value="{{ selected_date|date:'Y-m-d' }}">
+  <input type="hidden" name="session_type" value="{{ session_type }}">
+  <input type="hidden" name="update_existing" value="{% if existing_session %}true{% else %}false{% endif %}">
+
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th style="width: 80px;">Roll #</th>
+            <th style="width: 140px;">Admission #</th>
+            <th>Student Name</th>
+            <th style="min-width: 320px;">Attendance Status</th>
+            <th>Remarks / Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in roster %}
+            <tr>
+              <td class="fw-bold text-muted">{{ item.enrollment.roll_number }}</td>
+              <td><code>{{ item.student.admission_number }}</code></td>
+              <td class="fw-semibold text-dark">{{ item.student.full_name }}</td>
+              <td>
+                <div class="btn-group btn-group-sm" role="group">
+                  <input type="radio" class="btn-check" name="status_{{ item.student.id }}" id="status_p_{{ item.student.id }}" value="PRESENT" {% if item.current_status == 'PRESENT' %}checked{% endif %}>
+                  <label class="btn btn-outline-success px-3" for="status_p_{{ item.student.id }}">Present</label>
+
+                  <input type="radio" class="btn-check" name="status_{{ item.student.id }}" id="status_a_{{ item.student.id }}" value="ABSENT" {% if item.current_status == 'ABSENT' %}checked{% endif %}>
+                  <label class="btn btn-outline-danger px-3" for="status_a_{{ item.student.id }}">Absent</label>
+
+                  <input type="radio" class="btn-check" name="status_{{ item.student.id }}" id="status_l_{{ item.student.id }}" value="LATE" {% if item.current_status == 'LATE' %}checked{% endif %}>
+                  <label class="btn btn-outline-warning px-3" for="status_l_{{ item.student.id }}">Late</label>
+
+                  <input type="radio" class="btn-check" name="status_{{ item.student.id }}" id="status_e_{{ item.student.id }}" value="EXCUSED" {% if item.current_status == 'EXCUSED' %}checked{% endif %}>
+                  <label class="btn btn-outline-primary px-3" for="status_e_{{ item.student.id }}">Excused</label>
+                </div>
+              </td>
+              <td>
+                <input type="text" name="remarks_{{ item.student.id }}" class="form-control form-control-sm" placeholder="Optional remarks" value="{{ item.remarks }}">
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5" class="text-center py-4 text-muted">No students currently enrolled in this class section.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 p-3 bg-white d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3">
+    <div class="small text-muted">
+      <i class="bi bi-shield-lock-fill text-success me-1"></i> Guaranteed atomic commit with duplicate prevention and audit logging.
+    </div>
+    <button type="submit" class="btn btn-primary px-4 py-2 fw-semibold">
+      <i class="bi bi-check2-circle me-1"></i> {% if existing_session %}Update Attendance Register{% else %}Submit Attendance Register{% endif %}
+    </button>
+  </div>
+</form>
+{% endblock %}

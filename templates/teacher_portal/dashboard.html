@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Teacher Workspace{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-4">
+  <div>
+    <h3 class="fw-bold mb-0 text-dark">Teacher Classroom Workspace</h3>
+    <p class="text-muted small mb-0">Faculty: <strong>{{ user.get_full_name }}</strong> (ID: <code>{{ teacher.employee_id|default:"N/A" }}</code>)</p>
+  </div>
+  <div>
+    <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
+      <i class="bi bi-shield-lock-fill me-1"></i> RBAC Enforced: Assigned Classes Only
+    </span>
+  </div>
+</div>
+
+<!-- Assigned Classes Cards -->
+<div class="row g-4 mb-4">
+  {% for sec in sections %}
+    <div class="col-md-6 col-lg-4">
+      <div class="card h-100 shadow-sm border-0 card-hover">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <h5 class="fw-bold text-dark mb-0">{{ sec.display_name }}</h5>
+            <span class="badge bg-info-subtle text-info">{{ sec.enrollments.count }} Students</span>
+          </div>
+          <p class="text-muted small mb-3">Academic Session: {{ sec.academic_year.name }}</p>
+
+          <div class="d-grid gap-2">
+            <a href="{% url 'teacher-attendance-sheet' sec.id %}" class="btn btn-primary btn-sm">
+              <i class="bi bi-calendar-check me-1"></i> Take Today's Attendance
+            </a>
+            <a href="{% url 'teacher-attendance-history' sec.id %}" class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-clock-history me-1"></i> View Attendance History
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <div class="col-12">
+      <div class="card p-5 text-center bg-light border-0">
+        <i class="bi bi-mortarboard fs-1 text-muted mb-2"></i>
+        <h5 class="fw-bold text-muted">No Classes Assigned</h5>
+        <p class="text-muted small mb-0">You are currently not assigned to any class sections. Please contact the administrator.</p>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+<!-- Assigned Subjects & Exam Marks Entry -->
+<div class="card shadow-sm border-0">
+  <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+    <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-pencil-square me-2 text-primary"></i> Subject Teaching Assignments & Examination Grading</h6>
+    <span class="badge bg-light text-dark border">{{ my_subject_assignments.count }} Subject Roles</span>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Class Section</th>
+          <th>Subject Name</th>
+          <th>Subject Code</th>
+          <th>Scheduled Exams</th>
+          <th class="text-end">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for assign in my_subject_assignments %}
+          <tr>
+            <td class="fw-semibold text-dark">{{ assign.class_section.display_name }}</td>
+            <td class="text-dark">{{ assign.subject.name }}</td>
+            <td><span class="badge bg-light text-dark border">{{ assign.subject.code }}</span></td>
+            <td>
+              {% for sched in assign.exam_schedules.all %}
+                <span class="badge bg-primary-subtle text-primary me-1 mb-1">{{ sched.exam.name }}</span>
+              {% empty %}
+                <span class="text-muted small">No active exams scheduled</span>
+              {% endfor %}
+            </td>
+            <td class="text-end">
+              {% for sched in assign.exam_schedules.all %}
+                <a href="{% url 'teacher-marks-entry' sched.id %}" class="btn btn-sm btn-outline-success">
+                  <i class="bi bi-clipboard-check me-1"></i> Enter Marks ({{ sched.exam.name|truncatechars:15 }})
+                </a>
+              {% empty %}
+                <button class="btn btn-sm btn-outline-secondary" disabled>No Exams</button>
+              {% endfor %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="5" class="text-center py-4 text-muted">No subject assignments assigned to your profile.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
