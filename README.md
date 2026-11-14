@@ -2,13 +2,23 @@
 
 **Organization:** ALGIONS AI LABS PRIVATE LIMITED  
 **Candidate:** Sheebu Tiwari  
-**Registration Number:** 12310860  
-**Role:** Senior Full-Stack Software Architect & Technical Lead  
-**Tech Stack:** Python 3.14+, Django 6+, Bootstrap 5, Vanilla JavaScript, Neon PostgreSQL, Django REST Framework, drf-spectacular (OpenAPI 3.0), Render.
+**Role:** Full-Stack Web Development (Internship Assessment)  
+**Tech Stack:** Python 3.12+, Django 6+, Bootstrap 5, Vanilla JavaScript, Neon PostgreSQL / SQLite, Django REST Framework, drf-spectacular (OpenAPI 3.0), Render.
+
+> **Demonstration Notice:** This project is developed and demonstrated locally for assessment evaluation. While production deployment configurations (`render.yaml`, `build.sh`, and Neon PostgreSQL integration) are fully implemented and ready, the application is demonstrated locally and is not deployed to a live cloud host.
 
 ---
 
-## 1. Executive Summary & Architecture
+## 1. Project Documentation & Architecture Links
+
+- 📊 **Entity-Relationship (ER) Diagram:** [`docs/ER_DIAGRAM.md`](docs/ER_DIAGRAM.md)
+- 📝 **Comprehensive Technical Report:** [`docs/TECHNICAL_REPORT.md`](docs/TECHNICAL_REPORT.md)
+- 📄 **Static OpenAPI 3.0 Specification:** [`docs/openapi.yaml`](docs/openapi.yaml)
+- 📐 **Architecture Blueprint:** [`architecture_blueprint.md`](file:///C:/Users/sheeb/.gemini/antigravity/brain/62a49063-828f-4fa0-ad7c-b5b77163fa98/architecture_blueprint.md)
+
+---
+
+## 2. Executive Summary & Architecture
 
 The **ALGIONS School Management System** is a production-minded, modular multi-role web application designed for comprehensive school administration across **Admin**, **Teacher**, and **Guardian/Student** personas.
 
@@ -20,7 +30,7 @@ The **ALGIONS School Management System** is a production-minded, modular multi-r
 
 ---
 
-## 2. Six Required Business Modules
+## 3. Six Required Business Modules
 
 1. **Academic Administration (`apps/academics`):** Academic years, grade levels, sections, subjects, faculty subject assignments, and student enrollments.
 2. **Attendance Management (`apps/attendance`):** Daily roll call registers, session types (Full Day, Morning, Afternoon), duplicate attendance guard, student and class attendance summaries.
@@ -31,7 +41,7 @@ The **ALGIONS School Management System** is a production-minded, modular multi-r
 
 ---
 
-## 3. Five Critical Acceptance Criteria Verification
+## 4. Five Critical Acceptance Criteria Verification
 
 | # | Acceptance Criteria | Engineering Implementation | Automated Test |
 |---|---|---|---|
@@ -43,34 +53,37 @@ The **ALGIONS School Management System** is a production-minded, modular multi-r
 
 ---
 
-## 4. Quick Start & Local Setup
+## 5. Quick Start & Local Setup
 
-### 4.1 Prerequisites
-- Python 3.10+ (Tested on Python 3.14.6)
+### 5.1 Prerequisites
+- Python 3.12+
 - Git
 
-### 4.2 Installation
+### 5.2 Installation & Local Execution
 ```bash
-# Clone or navigate to the project directory
-cd "c:\Users\sheeb\Desktop\ALGIONS Project SMS"
+# 1. Clone the repository
+git clone https://github.com/Sheebu123/School-Management-System.git
+cd School-Management-System
 
-# Create and activate virtual environment
+# 2. Create and activate a virtual environment
 python -m venv .venv
-# On Windows PowerShell:
-.\.venv\Scripts\Activate.ps1
-# On Linux/macOS:
+
+# On Windows (Command Prompt / PowerShell):
+.venv\Scripts\activate
+
+# On Linux / macOS:
 source .venv/bin/activate
 
-# Install dependencies
+# 3. Install dependencies
 pip install -r requirements.txt
 
-# Apply database migrations
+# 4. Apply database migrations
 python manage.py migrate
 
-# Seed synthetic demo data
+# 5. Seed synthetic demo evaluation data
 python manage.py seed_demo_data
 
-# Run development server
+# 6. Run the local development server
 python manage.py runserver
 ```
 
@@ -78,7 +91,7 @@ Open your browser at `http://127.0.0.1:8000/`.
 
 ---
 
-## 5. Synthetic Evaluation Accounts
+## 6. Synthetic Evaluation Accounts
 
 The `seed_demo_data` command populates standard synthetic profiles for instant evaluation:
 
@@ -94,7 +107,7 @@ The `seed_demo_data` command populates standard synthetic profiles for instant e
 
 ---
 
-## 6. Running Automated Tests
+## 7. Running Automated Tests
 
 Execute the comprehensive 25-test suite:
 ```bash
@@ -105,11 +118,12 @@ All 25 tests validate the core domain logic, 5 critical acceptance criteria, RES
 
 ---
 
-## 7. REST API & OpenAPI Documentation
+## 8. REST API & OpenAPI Documentation
 
 - **Interactive Swagger UI:** `http://127.0.0.1:8000/api/v1/schema/swagger-ui/`
 - **ReDoc Documentation:** `http://127.0.0.1:8000/api/v1/schema/redoc/`
 - **Raw OpenAPI 3.0 Schema:** `http://127.0.0.1:8000/api/v1/schema/`
+- **Static OpenAPI YAML:** [`docs/openapi.yaml`](docs/openapi.yaml)
 
 ### Key API Endpoints
 - `GET /api/v1/classes/` — Class sections list (scoped by user role)
@@ -123,31 +137,9 @@ All 25 tests validate the core domain logic, 5 critical acceptance criteria, RES
 
 ---
 
-## 8. Deployment to Render & Neon PostgreSQL
+## 9. Production & Cloud Readiness (Render & Neon PostgreSQL)
 
-### 8.1 Render Configuration (`render.yaml`)
-The project includes a ready-to-deploy `render.yaml` and `build.sh` script:
-```yaml
-services:
-  - type: web
-    name: algions-sms
-    runtime: python
-    buildCommand: "./build.sh"
-    startCommand: "gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 3"
-    envVars:
-      - key: SECRET_KEY
-        generateValue: true
-      - key: DEBUG
-        value: "False"
-      - key: ALLOWED_HOSTS
-        value: ".onrender.com"
-      - key: DATABASE_URL
-        sync: false
-```
-
-### 8.2 Neon PostgreSQL
-To connect to Neon serverless PostgreSQL, simply provide your Neon pooled connection string in the `DATABASE_URL` environment variable:
-```env
-DATABASE_URL=postgresql://<user>:<password>@<neon-pooler-host>/<dbname>?sslmode=require
-```
-Django will automatically configure connection pooling and SSL mode via `dj-database-url`.
+The project includes production-ready deployment configurations:
+- **Render Service Specification:** [`render.yaml`](render.yaml) (Gunicorn WSGI web service)
+- **Deployment Build Script:** [`build.sh`](build.sh) (Automated migrations and WhiteNoise `collectstatic`)
+- **Neon Serverless PostgreSQL:** Configured via `DATABASE_URL` environment variable in `config/settings.py` with automatic SSL enforcement and connection pooling.

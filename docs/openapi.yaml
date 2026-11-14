@@ -1,0 +1,1011 @@
+openapi: 3.0.3
+info:
+  title: ALGIONS School Management System API
+  version: 1.0.0
+  description: |-
+    Production-Minded School Management System API for ALGIONS AI LABS assessment.
+    Candidate: Sheebu Tiwari (12310860)
+    Provides endpoints for Academic Administration, Attendance Management, Examinations & Results, and Fee Reconciliation.
+paths:
+  /api/v1/attendance/sessions/:
+    get:
+      operationId: attendance_sessions_list
+      description: |-
+        Attendance recording and viewing endpoint.
+        Acceptance Criteria 1 & 2: Safe session recording with duplicate prevention and teacher class validation.
+      tags:
+      - attendance
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AttendanceSession'
+          description: ''
+    post:
+      operationId: attendance_sessions_create
+      description: |-
+        Attendance recording and viewing endpoint.
+        Acceptance Criteria 1 & 2: Safe session recording with duplicate prevention and teacher class validation.
+      tags:
+      - attendance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AttendanceSessionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AttendanceSessionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AttendanceSessionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttendanceSession'
+          description: ''
+  /api/v1/attendance/sessions/{id}/:
+    get:
+      operationId: attendance_sessions_retrieve
+      description: |-
+        Attendance recording and viewing endpoint.
+        Acceptance Criteria 1 & 2: Safe session recording with duplicate prevention and teacher class validation.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - attendance
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttendanceSession'
+          description: ''
+    put:
+      operationId: attendance_sessions_update
+      description: |-
+        Attendance recording and viewing endpoint.
+        Acceptance Criteria 1 & 2: Safe session recording with duplicate prevention and teacher class validation.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - attendance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AttendanceSessionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AttendanceSessionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AttendanceSessionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttendanceSession'
+          description: ''
+    patch:
+      operationId: attendance_sessions_partial_update
+      description: |-
+        Attendance recording and viewing endpoint.
+        Acceptance Criteria 1 & 2: Safe session recording with duplicate prevention and teacher class validation.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - attendance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAttendanceSessionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAttendanceSessionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAttendanceSessionRequest'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttendanceSession'
+          description: ''
+    delete:
+      operationId: attendance_sessions_destroy
+      description: |-
+        Attendance recording and viewing endpoint.
+        Acceptance Criteria 1 & 2: Safe session recording with duplicate prevention and teacher class validation.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - attendance
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/attendance/sessions/record/:
+    post:
+      operationId: attendance_sessions_record_create
+      description: |-
+        Attendance recording and viewing endpoint.
+        Acceptance Criteria 1 & 2: Safe session recording with duplicate prevention and teacher class validation.
+      summary: Submit attendance sheet for a class section
+      tags:
+      - attendance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AttendanceSubmissionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AttendanceSubmissionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AttendanceSubmissionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttendanceSession'
+          description: ''
+  /api/v1/classes/:
+    get:
+      operationId: classes_list
+      description: |-
+        List and retrieve class sections.
+        Scoped by role: Teachers see only assigned sections; Guardians see wards' sections; Admins see all.
+      tags:
+      - classes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ClassSection'
+          description: ''
+  /api/v1/classes/{id}/:
+    get:
+      operationId: classes_retrieve
+      description: |-
+        List and retrieve class sections.
+        Scoped by role: Teachers see only assigned sections; Guardians see wards' sections; Admins see all.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - classes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassSection'
+          description: ''
+  /api/v1/exams/:
+    get:
+      operationId: exams_list
+      description: List examinations. Guardians only see published exams.
+      tags:
+      - exams
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Exam'
+          description: ''
+  /api/v1/exams/{id}/:
+    get:
+      operationId: exams_retrieve
+      description: List examinations. Guardians only see published exams.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - exams
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
+          description: ''
+  /api/v1/exams/marks/submit/:
+    post:
+      operationId: exams_marks_submit_create
+      description: |-
+        Enter or update examination subject marks.
+        Enforces teacher assignment and numerical constraints.
+      tags:
+      - exams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarksSubmissionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MarksSubmissionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MarksSubmissionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v1/finance/invoices/:
+    get:
+      operationId: finance_invoices_list
+      description: |-
+        List and retrieve student invoices.
+        Guardians are strictly restricted to their own wards (Acceptance Criteria 4).
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FeeInvoice'
+          description: ''
+  /api/v1/finance/invoices/{id}/:
+    get:
+      operationId: finance_invoices_retrieve
+      description: |-
+        List and retrieve student invoices.
+        Guardians are strictly restricted to their own wards (Acceptance Criteria 4).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeeInvoice'
+          description: ''
+  /api/v1/finance/pay/:
+    post:
+      operationId: finance_pay_create
+      description: Execute simulated fee payment with atomic reconciliation (Acceptance
+        Criteria 5).
+      tags:
+      - finance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentSubmissionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PaymentSubmissionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PaymentSubmissionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentTransaction'
+          description: ''
+  /api/v1/finance/reconciliation/:
+    get:
+      operationId: finance_reconciliation_retrieve
+      description: System-wide fee reconciliation dashboard statistics (Admin only).
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v1/students/:
+    get:
+      operationId: students_list
+      description: |-
+        List and retrieve student profiles.
+        Guardians can ONLY view their linked wards (Acceptance Criteria 4).
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentProfile'
+          description: ''
+  /api/v1/students/{id}/:
+    get:
+      operationId: students_retrieve
+      description: |-
+        List and retrieve student profiles.
+        Guardians can ONLY view their linked wards (Acceptance Criteria 4).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentProfile'
+          description: ''
+  /api/v1/students/{id}/attendance_summary/:
+    get:
+      operationId: students_attendance_summary_retrieve
+      description: |-
+        List and retrieve student profiles.
+        Guardians can ONLY view their linked wards (Acceptance Criteria 4).
+      summary: Get student attendance summary metrics
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentProfile'
+          description: ''
+  /api/v1/students/{student_id}/report-card/:
+    get:
+      operationId: students_report_card_retrieve
+      description: |-
+        Generate computed student report card with automatic grade rules evaluation (Acceptance Criteria 3).
+        Guarded against IDOR (Acceptance Criteria 4).
+      parameters:
+      - in: query
+        name: exam_id
+        schema:
+          type: string
+          format: uuid
+        description: UUID of Exam
+        required: true
+      - in: path
+        name: student_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+components:
+  schemas:
+    AttendanceRecord:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        student:
+          type: string
+          format: uuid
+        student_name:
+          type: string
+          readOnly: true
+        admission_number:
+          type: string
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/Status51aEnum'
+        remarks:
+          type: string
+          maxLength: 255
+      required:
+      - admission_number
+      - id
+      - student
+      - student_name
+    AttendanceRecordItemRequest:
+      type: object
+      properties:
+        student_id:
+          type: string
+          format: uuid
+        status:
+          allOf:
+          - $ref: '#/components/schemas/Status51aEnum'
+          default: PRESENT
+        remarks:
+          type: string
+          maxLength: 255
+      required:
+      - student_id
+    AttendanceRecordRequest:
+      type: object
+      properties:
+        student:
+          type: string
+          format: uuid
+        status:
+          $ref: '#/components/schemas/Status51aEnum'
+        remarks:
+          type: string
+          maxLength: 255
+      required:
+      - student
+    AttendanceSession:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        class_section:
+          type: string
+          format: uuid
+        class_section_name:
+          type: string
+          readOnly: true
+        date:
+          type: string
+          format: date
+        session_type:
+          allOf:
+          - $ref: '#/components/schemas/SessionTypeEnum'
+          default: FULL_DAY
+        recorded_by_name:
+          type: string
+          readOnly: true
+        recorded_at:
+          type: string
+          format: date-time
+          readOnly: true
+        notes:
+          type: string
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttendanceRecord'
+          readOnly: true
+      required:
+      - class_section
+      - class_section_name
+      - date
+      - id
+      - recorded_at
+      - recorded_by_name
+      - records
+    AttendanceSessionRequest:
+      type: object
+      properties:
+        class_section:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date
+        session_type:
+          allOf:
+          - $ref: '#/components/schemas/SessionTypeEnum'
+          default: FULL_DAY
+        notes:
+          type: string
+      required:
+      - class_section
+      - date
+    AttendanceSubmissionRequest:
+      type: object
+      properties:
+        class_section_id:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date
+        session_type:
+          allOf:
+          - $ref: '#/components/schemas/SessionTypeEnum'
+          default: FULL_DAY
+        notes:
+          type: string
+        update_existing:
+          type: boolean
+          default: false
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttendanceRecordItemRequest'
+      required:
+      - class_section_id
+      - date
+      - records
+    ClassSection:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        display_name:
+          type: string
+          readOnly: true
+        class_level:
+          type: string
+          format: uuid
+        class_level_name:
+          type: string
+          readOnly: true
+        section_name:
+          type: string
+          description: e.g., A, B, Green
+          maxLength: 20
+        academic_year:
+          type: string
+          format: uuid
+        academic_year_name:
+          type: string
+          readOnly: true
+        class_teacher:
+          type: string
+          format: uuid
+          nullable: true
+        class_teacher_name:
+          type: string
+          readOnly: true
+      required:
+      - academic_year
+      - academic_year_name
+      - class_level
+      - class_level_name
+      - class_teacher_name
+      - display_name
+      - id
+      - section_name
+    Exam:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          description: e.g., Term 1 Examination 2026
+          maxLength: 100
+        academic_year:
+          type: string
+          format: uuid
+        academic_year_name:
+          type: string
+          readOnly: true
+        grading_system:
+          type: string
+          format: uuid
+        grading_system_name:
+          type: string
+          readOnly: true
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        is_published:
+          type: boolean
+          description: If true, results are visible to guardians.
+      required:
+      - academic_year
+      - academic_year_name
+      - end_date
+      - grading_system
+      - grading_system_name
+      - id
+      - name
+      - start_date
+    FeeInvoice:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        invoice_number:
+          type: string
+          maxLength: 50
+        student:
+          type: string
+          format: uuid
+        student_name:
+          type: string
+          readOnly: true
+        admission_number:
+          type: string
+          readOnly: true
+        academic_year:
+          type: string
+          format: uuid
+        total_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        paid_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        outstanding_balance:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
+        due_date:
+          type: string
+          format: date
+        status:
+          $ref: '#/components/schemas/FeeInvoiceStatusEnum'
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentTransaction'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - academic_year
+      - admission_number
+      - created_at
+      - due_date
+      - id
+      - invoice_number
+      - outstanding_balance
+      - payments
+      - student
+      - student_name
+    FeeInvoiceStatusEnum:
+      enum:
+      - UNPAID
+      - PARTIALLY_PAID
+      - PAID
+      - OVERDUE
+      type: string
+      description: |-
+        * `UNPAID` - Unpaid
+        * `PARTIALLY_PAID` - Partially Paid
+        * `PAID` - Paid
+        * `OVERDUE` - Overdue
+    GenderEnum:
+      enum:
+      - M
+      - F
+      - O
+      type: string
+      description: |-
+        * `M` - Male
+        * `F` - Female
+        * `O` - Other
+    MarkItemRequest:
+      type: object
+      properties:
+        student_id:
+          type: string
+          format: uuid
+        marks_obtained:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,2})?$
+          default: '0.00'
+        is_absent:
+          type: boolean
+          default: false
+        remarks:
+          type: string
+          maxLength: 200
+      required:
+      - student_id
+    MarksSubmissionRequest:
+      type: object
+      properties:
+        exam_schedule_id:
+          type: string
+          format: uuid
+        marks:
+          type: array
+          items:
+            $ref: '#/components/schemas/MarkItemRequest'
+      required:
+      - exam_schedule_id
+      - marks
+    PatchedAttendanceSessionRequest:
+      type: object
+      properties:
+        class_section:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date
+        session_type:
+          allOf:
+          - $ref: '#/components/schemas/SessionTypeEnum'
+          default: FULL_DAY
+        notes:
+          type: string
+    PaymentMethodEnum:
+      enum:
+      - SIMULATED_CARD
+      - NET_BANKING
+      - UPI
+      - CASH
+      type: string
+      description: |-
+        * `SIMULATED_CARD` - Debit/Credit Card (Simulated)
+        * `NET_BANKING` - Net Banking (Simulated)
+        * `UPI` - UPI (Simulated)
+        * `CASH` - Cash (Desk Receipt)
+    PaymentSubmissionRequest:
+      type: object
+      properties:
+        invoice_id:
+          type: string
+          format: uuid
+        amount_paid:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        payment_method:
+          allOf:
+          - $ref: '#/components/schemas/PaymentMethodEnum'
+          default: SIMULATED_CARD
+        payer_name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        notes:
+          type: string
+      required:
+      - amount_paid
+      - invoice_id
+      - payer_name
+    PaymentTransaction:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        transaction_reference:
+          type: string
+          maxLength: 64
+        amount_paid:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        payment_method:
+          $ref: '#/components/schemas/PaymentMethodEnum'
+        payment_date:
+          type: string
+          format: date-time
+          readOnly: true
+        payer_name:
+          type: string
+          maxLength: 150
+        status:
+          $ref: '#/components/schemas/PaymentTransactionStatusEnum'
+        notes:
+          type: string
+      required:
+      - amount_paid
+      - id
+      - payer_name
+      - payment_date
+      - transaction_reference
+    PaymentTransactionStatusEnum:
+      enum:
+      - SUCCESS
+      - FAILED
+      type: string
+      description: |-
+        * `SUCCESS` - Success
+        * `FAILED` - Failed
+    SessionTypeEnum:
+      enum:
+      - FULL_DAY
+      - MORNING
+      - AFTERNOON
+      type: string
+      description: |-
+        * `FULL_DAY` - Full Day
+        * `MORNING` - Morning
+        * `AFTERNOON` - Afternoon
+    Status51aEnum:
+      enum:
+      - PRESENT
+      - ABSENT
+      - LATE
+      - EXCUSED
+      type: string
+      description: |-
+        * `PRESENT` - Present
+        * `ABSENT` - Absent
+        * `LATE` - Late
+        * `EXCUSED` - Excused
+    StudentProfile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        admission_number:
+          type: string
+          maxLength: 30
+        first_name:
+          type: string
+          maxLength: 100
+        last_name:
+          type: string
+          maxLength: 100
+        full_name:
+          type: string
+          readOnly: true
+        date_of_birth:
+          type: string
+          format: date
+        gender:
+          $ref: '#/components/schemas/GenderEnum'
+        guardian:
+          type: string
+          format: uuid
+          description: Guardian legally responsible for this student.
+        guardian_name:
+          type: string
+          readOnly: true
+        is_active:
+          type: boolean
+      required:
+      - admission_number
+      - date_of_birth
+      - first_name
+      - full_name
+      - guardian
+      - guardian_name
+      - id
+      - last_name
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
